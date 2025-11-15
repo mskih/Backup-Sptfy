@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %> · Backup Sptfy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/static/css/main.css" rel="stylesheet">
+</head>
+<body>
+<header class="navbar">
+  <div class="navbar-left">
+    <a class="navbar-brand" href="/">
+      <div class="logo-circle">♪</div>
+      <span class="app-title">Backup Sptfy</span>
+    </a>
+  </div>
+  <div class="navbar-right">
+    <span class="badge">Node · Express</span>
+  </div>
+</header>
+
+<main class="page">
+  <section class="section">
+    <h1 class="section-title">Your Playlists</h1>
+
+    <% if (!playlists || !playlists.length) { %>
+      <p class="muted">
+        No playlists configured. Set <code>PLAYLIST_URLS</code> in your <code>.env</code> file.
+      </p>
+    <% } else { %>
+      <div class="playlist-grid">
+        <% playlists.forEach(function (p) { 
+             const total = p.tracksTotal || 0;
+             const downloaded = p.downloadedCount || 0;
+             const progress = total ? Math.round((downloaded / total) * 100) : 0;
+             const cover = (p.images && p.images.length) ? p.images[0].url : null;
+        %>
+          <article class="playlist-card">
+            <a href="/playlist/<%= p.id %>" class="playlist-card-cover">
+              <% if (cover) { %>
+                <img src="<%= cover %>" alt="Cover for <%= p.name %>">
+              <% } else { %>
+                <div class="cover-placeholder">♪</div>
+              <% } %>
+            </a>
+
+            <div class="playlist-card-header">
+              <h2 class="playlist-name">
+                <a href="/playlist/<%= p.id %>"><%= p.name %></a>
+              </h2>
+              <p class="playlist-owner">by <%= p.owner || 'Unknown' %></p>
+            </div>
+
+            <div class="playlist-meta">
+              <span><strong><%= total %></strong> tracks</span>
+              <% if (p.lastSyncAt) { %>
+                <span class="muted">
+                  Last sync: <%= new Date(p.lastSyncAt).toLocaleString() %>
+                </span>
+              <% } %>
+            </div>
+
+            <div class="progress">
+              <div class="progress-bar" style="width:<%= progress %>%"></div>
+            </div>
+            <div class="progress-label">
+              <span><%= downloaded %> / <%= total %> downloaded</span>
+              <span><%= progress %>%</span>
+            </div>
+
+            <div class="status-row">
+              <span class="status status-<%= p.status %>">
+                <%= p.status === 'syncing' ? 'Syncing…' :
+                    p.status === 'error' ? 'Error' : 'Idle' %>
+              </span>
+              <% if (p.url) { %>
+                <a class="external-link" href="<%= p.url %>" target="_blank" rel="noopener">
+                  Open in Spotify
+                </a>
+              <% } %>
+            </div>
+
+            <div class="card-actions">
+              <form method="POST" action="/playlist/<%= p.id %>/sync">
+                <button class="btn btn-primary" type="submit"
+                  <% if (p.status === 'syncing') { %>disabled<% } %>>
+                  <% if (p.status === 'syncing') { %>Syncing…<% } else { %>Sync now<% } %>
+                </button>
+              </form>
+              <a class="btn btn-secondary" href="/playlist/<%= p.id %>/download">
+                Download ZIP
+              </a>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>Self-hosted Spotify playlist backup · spotdl + Node.js</span>
+</footer>
+</body>
+</html>

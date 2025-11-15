@@ -1,0 +1,48 @@
+
+---
+
+# ✅ 3. `.gitignore` for this project
+
+Create `.gitignore` in your repo root:
+
+```gitignore
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# dotenv
+.env
+.env.local
+.env.*.local
+
+# Express logs
+logs/
+*.log
+
+# Downloads (spotdl output)
+downloads/
+downloads/*
+
+# Build artifacts
+dist/
+tmp/
+.cache/
+
+# System
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# OS junk
+*.swp
+*.swo

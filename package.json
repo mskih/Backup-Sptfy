@@ -1,0 +1,20 @@
+{
+  "name": "backup-sptfy-node",
+  "version": "1.0.0",
+  "description": "Backup Spotify playlists to local MP3s using spotdl (Node + Express)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "archiver": "^7.0.0",
+    "dotenv": "^16.4.0",
+    "ejs": "^3.1.10",
+    "express": "^4.19.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

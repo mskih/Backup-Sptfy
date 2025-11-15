@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %> · Backup Sptfy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/static/css/main.css" rel="stylesheet">
+</head>
+<body>
+<header class="navbar">
+  <div class="navbar-left">
+    <a class="navbar-brand" href="/">
+      <div class="logo-circle">♪</div>
+      <span class="app-title">Backup Sptfy</span>
+    </a>
+  </div>
+  <div class="navbar-right">
+    <span class="badge">Node · Express</span>
+  </div>
+</header>
+
+<main class="page">
+  <section class="section">
+    <%
+      const cover = (playlist.images && playlist.images.length)
+        ? playlist.images[0].url
+        : null;
+    %>
+    <div class="playlist-detail-header">
+      <div class="playlist-detail-cover">
+        <% if (cover) { %>
+          <img src="<%= cover %>" alt="Cover for <%= playlist.name %>">
+        <% } else { %>
+          <div class="cover-placeholder large">♪</div>
+        <% } %>
+      </div>
+
+      <div class="playlist-detail-main">
+        <div>
+          <h1 class="section-title"><%= playlist.name %></h1>
+          <p class="muted">
+            by <strong><%= playlist.owner || 'Unknown' %></strong> ·
+            <%= playlist.tracksTotal || playlist.tracks.length %> tracks
+          </p>
+          <% if (playlist.url) { %>
+            <p>
+              <a class="external-link" href="<%= playlist.url %>" target="_blank" rel="noopener">
+                Open in Spotify
+              </a>
+            </p>
+          <% } %>
+        </div>
+        <div class="playlist-detail-actions">
+          <form method="POST" action="/playlist/<%= playlist.id %>/sync">
+            <button class="btn btn-primary" type="submit"
+              <% if (playlist.status === 'syncing') { %>disabled<% } %>>
+              <% if (playlist.status === 'syncing') { %>Syncing…<% } else { %>Sync now<% } %>
+            </button>
+          </form>
+          <a class="btn btn-secondary" href="/playlist/<%= playlist.id %>/download">
+            Download ZIP
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <%
+        const total = playlist.tracksTotal || playlist.tracks.length;
+        const downloaded = playlist.downloadedCount || 0;
+        const progress = total ? Math.round((downloaded / total) * 100) : 0;
+      %>
+
+      <div class="summary-row">
+        <div>
+          <div class="summary-value"><%= downloaded %> / <%= total %></div>
+          <div class="summary-label">Tracks downloaded</div>
+        </div>
+        <div>
+          <div class="summary-value"><%= progress %>%</div>
+          <div class="summary-label">Overall progress</div>
+        </div>
+        <div>
+          <div class="summary-value status status-<%= playlist.status %>">
+            <%= playlist.status === 'syncing' ? 'Syncing' :
+                playlist.status === 'error' ? 'Error' : 'Idle' %>
+          </div>
+          <div class="summary-label">Status</div>
+        </div>
+      </div>
+
+      <div class="progress large">
+        <div class="progress-bar" style="width:<%= progress %>%"></div>
+      </div>
+
+      <div class="summary-footer">
+        <% if (playlist.lastSyncAt) { %>
+          <span class="muted">
+            Last sync: <%= new Date(playlist.lastSyncAt).toLocaleString() %>
+          </span>
+        <% } %>
+        <% if (playlist.lastMetadataRefreshAt) { %>
+          <span class="muted">
+            Metadata refreshed: <%= new Date(playlist.lastMetadataRefreshAt).toLocaleString() %>
+          </span>
+        <% } %>
+        <% if (playlist.errorMessage) { %>
+          <span class="error-text">Error: <%= playlist.errorMessage %></span>
+        <% } %>
+      </div>
+    </div>
+
+    <h2 class="section-subtitle">Tracks</h2>
+    <div class="table-wrapper">
+      <table class="tracks-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Track</th>
+            <th>Artist</th>
+            <th>Album</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!playlist.tracks || !playlist.tracks.length) { %>
+            <tr>
+              <td colspan="5" class="muted">
+                No tracks loaded yet. Wait a moment or trigger a sync.
+              </td>
+            </tr>
+          <% } else { %>
+            <% playlist.tracks.forEach(function (t, idx) { %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td>
+                  <% if (t.spotifyUrl) { %>
+                    <a class="track-link" href="<%= t.spotifyUrl %>" target="_blank" rel="noopener">
+                      <%= t.name %>
+                    </a>
+                  <% } else { %>
+                    <%= t.name %>
+                  <% } %>
+                </td>
+                <td><%= t.artists %></td>
+                <td class="muted"><%= t.album %></td>
+                <td>
+                  <% if (t.localStatus === 'downloaded') { %>
+                    <span class="badge badge-ok">Downloaded</span>
+                  <% } else { %>
+                    <span class="badge badge-pending">Pending</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (playlist.logs && playlist.logs.length) { %>
+      <h2 class="section-subtitle">Download log</h2>
+      <div class="log-box">
+        <pre><%= playlist.logs.join('') %></pre>
+      </div>
+    <% } %>
+
+  </section>
+</main>
+
+<footer class="footer">
+  <span>Self-hosted Spotify playlist backup · spotdl + Node.js</span>
+</footer>
+</body>
+</html>

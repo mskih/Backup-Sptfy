@@ -1,0 +1,10 @@
+services:
+  backup-sptfy:
+    build: .
+    container_name: backup-sptfy
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./downloads:/app/downloads
