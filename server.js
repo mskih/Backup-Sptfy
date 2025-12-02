@@ -30,7 +30,7 @@ const app = express();
 
 // 1 hour TTL for downloaded content (playlists & YouTube jobs)
 const CONTENT_TTL_MS = 60 * 60 * 1000;
-const CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // run cleanup every 10 minutes
+const CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // cleanup every 10 minutes
 
 // View engine
 app.set('view engine', 'ejs');
@@ -283,7 +283,7 @@ app.get('/yt/:jobId/file/:name', (req, res) => {
 });
 
 // ----------------------------------------------------------
-// Simple JSON API endpoints (optional, for polling/progress)
+// Simple JSON API endpoints (optional)
 // ----------------------------------------------------------
 app.get('/api/playlists', (req, res) => {
   res.json(getAllPlaylistsSummary());
